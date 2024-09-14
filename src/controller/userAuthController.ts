@@ -22,21 +22,21 @@ const registerUser = async (req: Request, res: Response) => {
     }
 
     // Set default role to 'student'
-    let role = "student";
+    let newrole = "student";
 
     // Check if email matches the first admin email
     if (
       process.env.FIRST_ADMIN_EMAIL &&
       email === process.env.FIRST_ADMIN_EMAIL
     ) {
-      role = "admin"; // Set role to 'admin' for the  admin email
+      newrole = "admin"; // Set role to 'admin' for the  admin email
     }
 
     const user = await User.create({
       name,
       email,
       password,
-      role,
+      role: newrole,
     });
 
     res.status(201).json({

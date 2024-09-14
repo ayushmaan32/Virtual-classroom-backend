@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 
 type UserRole = "admin" | "instructor" | "student";
 export interface IUser extends Document {
+  _id: string;
   name: string;
   email: string;
   password: string;

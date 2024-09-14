@@ -1,8 +1,10 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-// import classRoutes from "./routes/classRoutes";
+import ClassRoutes from "./routes/ClassRoutes";
 import MyUserRoutes from "./routes/MyUserRoutes";
+import MyAdminRoutes from "./routes/MyAdminRoutes";
 import mongoose from "mongoose";
+import cors from "cors";
 
 dotenv.config();
 
@@ -11,6 +13,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
+app.use(cors());
 
 mongoose
   .connect(process.env.MONGODB_CONNECTION_STRING as string)
@@ -24,10 +27,12 @@ mongoose
 // Routes
 // app.use("/api/classes", classRoutes);
 app.use("/api/my/user", MyUserRoutes);
+app.use("/api/admin", MyAdminRoutes);
+app.use("api/class", ClassRoutes);
 
-// Basic route
-app.get("/", (req, res) => {
-  res.send("Virtual Classroom API");
+// route to check server is working
+app.get("/health", (req: Request, res: Response) => {
+  res.send({ message: "Health is Ok" });
 });
 
 app.listen(PORT, () => {
