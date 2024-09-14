@@ -5,6 +5,7 @@ import { Class } from "../models/classModel";
 import { Unit } from "../models/unitModel";
 import { Lecture } from "../models/letcureModel";
 import { Session } from "../models/sessionModel";
+import mongoose from "mongoose";
 
 // @desc    Create a new class
 // @route   POST /api/class
@@ -88,7 +89,9 @@ const addUnitToClass = async (req: Request, res: Response) => {
     const newUnit = new Unit({ title, class: classDoc._id });
     await newUnit.save();
 
-    classDoc.units.push(newUnit._id); // Add the unit reference to the class
+    classDoc.units.push(
+      newUnit._id as unknown as mongoose.Schema.Types.ObjectId
+    ); // Add the unit reference to the class
     await classDoc.save();
 
     res.status(201).json(newUnit);
@@ -111,7 +114,9 @@ const addSessionToUnit = async (req: Request, res: Response) => {
     const newSession = new Session({ title, unit: unitDoc._id });
     await newSession.save();
 
-    unitDoc.sessions.push(newSession._id); // Add session reference to the unit
+    unitDoc.sessions.push(
+      newSession._id as unknown as mongoose.Schema.Types.ObjectId
+    ); // Add session reference to the unit
     await unitDoc.save();
 
     res.status(201).json(newSession);
@@ -134,7 +139,9 @@ const addLectureToSession = async (req: Request, res: Response) => {
     const newLecture = new Lecture({ title, content, session: sessionDoc._id });
     await newLecture.save();
 
-    sessionDoc.lectures.push(newLecture._id); // Add lecture reference to the session
+    sessionDoc.lectures.push(
+      newLecture._id as unknown as mongoose.Schema.Types.ObjectId
+    ); // Add lecture reference to the session
     await sessionDoc.save();
 
     res.status(201).json(newLecture);
@@ -143,6 +150,50 @@ const addLectureToSession = async (req: Request, res: Response) => {
   }
 };
 
+const getClassWithUnits = async (req: Request, res: Response) => {
+  const { classId } = req.params;
+
+  try {
+    const classDoc = await Class.findById(classId).populate("units"); // Populate units
+    if (!classDoc) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+    res.status(200).json(classDoc);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching class", error });
+  }
+};
+
+const getUnitWithSessions = async (req: Request, res: Response) => {
+  const { unitId } = req.params;
+
+  try {
+    const unitDoc = await Unit.findById(unitId).populate("sessions"); // Populate sessions
+    if (!unitDoc) {
+      return res.status(404).json({ message: "Unit not found" });
+    }
+    res.status(200).json(unitDoc);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching unit", error });
+  }
+};
+
+const getLecturesForSession = async (req: Request, res: Response) => {
+  const { sessionId } = req.params;
+
+  try {
+    // Find the session and populate the lectures
+    const session = await Session.findById(sessionId).populate("lectures");
+
+    if (!session) {
+      return res.status(404).json({ message: "Session not found" });
+    }
+
+    res.status(200).json(session.lectures);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching lectures", error });
+  }
+};
 export default {
   createClass,
   updateClass,
@@ -150,4 +201,7 @@ export default {
   addUnitToClass,
   addSessionToUnit,
   addLectureToSession,
+  getClassWithUnits,
+  getUnitWithSessions,
+  getLecturesForSession,
 };

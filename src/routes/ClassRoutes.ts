@@ -1,6 +1,10 @@
 import express from "express";
 import controller from "../controller/classController";
-import { adminOrInstructor, protect } from "../middleware/authmiddleware";
+import {
+  adminOrInstructor,
+  protect,
+  studentAccess,
+} from "../middleware/authmiddleware";
 
 const router = express.Router();
 
@@ -15,11 +19,14 @@ router.delete("/:id", protect, adminOrInstructor, controller.deleteClass);
 
 // Add Unit to Class (Admin/Instructor Only)
 router.post(
-  "/class/:classId/unit",
+  "/:classId/unit",
   protect,
   adminOrInstructor,
   controller.addUnitToClass
 );
+
+// route to get unit for each class
+router.get("/:classId/unit", protect, controller.getClassWithUnits);
 
 // Add Session to Unit (Admin/Instructor Only)
 router.post(
@@ -29,12 +36,22 @@ router.post(
   controller.addSessionToUnit
 );
 
+// route to get unit for each class
+router.get("/unit/:unitId/session", protect, controller.getUnitWithSessions);
+
 // Add Lecture to Session (Admin/Instructor Only)
 router.post(
   "/session/:sessionId/lecture",
   protect,
   adminOrInstructor,
   controller.addLectureToSession
+);
+
+// Route to get lectures for a session
+router.get(
+  "/session/:sessionId/lectures",
+  protect,
+  controller.getLecturesForSession
 );
 
 export default router;
