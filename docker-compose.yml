@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  backend:
+    build:
+      context: ./ # Path to your Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000" # Map the host machine's port 5000 to the container's port 5000
+    depends_on:
+      - mongo # Backend depends on MongoDB
+    environment:
+      - MONGODB_CONNECTION_STRING=mongodb://mongo:27017/virtual_classroom # Link to MongoDB container
+      - PORT=5000
+      - JWT_SECRET=yoursecret
+      - FIRST_ADMIN_EMAIL=xyz@gmail.com
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017" # Map MongoDB port to the host machine
+    volumes:
+      - mongo-data:/data/db # Persist data in a volume
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
