@@ -5,6 +5,11 @@ import MyUserRoutes from "./routes/MyUserRoutes";
 import MyAdminRoutes from "./routes/MyAdminRoutes";
 import mongoose from "mongoose";
 import cors from "cors";
+import cluster from "cluster";
+import http from "http";
+import os from "os";
+
+const numCpus = os.cpus().length;
 
 dotenv.config();
 
@@ -29,12 +34,26 @@ mongoose
 app.use("/api/my/user", MyUserRoutes);
 app.use("/api/admin", MyAdminRoutes);
 app.use("api/class", ClassRoutes);
+// app.use("api/enrollment");
 
 // route to check server is working
 app.get("/health", (req: Request, res: Response) => {
   res.send({ message: "Health is Ok" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+if (cluster.isPrimary) {
+  console.log(`Master process ${process.pid} is running`);
+  for (let i = 0; i < numCpus; i++) {
+    cluster.fork();
+  }
+  console.log(`woker process ${process.pid}`);
+
+  cluster.on("exit", function (worker) {
+    console.log(`Worker process ${worker.process.pid} died. Restarting...`);
+    cluster.fork();
+  });
+} else {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}

@@ -24,3 +24,8 @@ export interface IUnit {
   class: mongoose.Schema.Types.ObjectId; // Reference to the Class
   sessions: mongoose.Schema.Types.ObjectId[]; // Reference to Session documents
 }
+export interface IEnrollment extends Document {
+  student: mongoose.Types.ObjectId;
+  class: mongoose.Types.ObjectId;
+  enrolledAt: Date;
+}
