@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { User } from "../models/userModel";
+import optGenerator from "otp-generator";
+import sendResetPassEmail from "../mailer/sendResetPassEmail";
+import { otpStore } from "..";
 import bcrypt from "bcryptjs";
 
 // Generate JWT token
@@ -74,7 +77,64 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
+// const otpStore: Record<string, string> = {};
+const generateOTP = (req: Request, res: Response) => {
+  const email = req.body.email;
+
+  if (!email) {
+    return res.status(400).json({
+      message: "Email is required",
+    });
+  }
+
+  // const otp = Math.floor(100000 + Math.random() * 999999).toString();
+  const otp = optGenerator.generate(6, {
+    upperCaseAlphabets: false,
+    lowerCaseAlphabets: false,
+    specialChars: false,
+  });
+  otpStore[email] = otp;
+  console.log("opt generated", otp);
+  console.log("store", otpStore);
+
+  sendResetPassEmail(email, otp);
+
+  return res.status(200).json({
+    message: "otp generated and logged",
+  });
+};
+
+const resetPassword = async (req: Request, res: Response) => {
+  const { email, otp, password } = req.body;
+
+  if (!email || !otp || !password) {
+    return res.status(401).json({
+      message: "Email, OTP, and new password are required",
+    });
+  }
+  console.log(otpStore);
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  if (otpStore[email] === otp) {
+    console.log("hello", otp);
+    User.updateOne(
+      { email: email },
+      {
+        $set: { password: hashedPassword },
+      }
+    );
+    delete otpStore[email]; // Clear the OTP after use
+    res.status(200).json({ message: "Password has been reset successfully" });
+  } else {
+    return res.status(401).json({
+      message: "Invalid OTP",
+    });
+  }
+};
+console.log(otpStore);
 export default {
   registerUser,
   loginUser,
+  generateOTP,
+  resetPassword,
 };

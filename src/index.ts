@@ -29,11 +29,14 @@ mongoose
     console.error(err);
   });
 
+// Store OTPs in a simple in-memory object
+export const otpStore: Record<string, string> = {};
+
 // Routes
 // app.use("/api/classes", classRoutes);
 app.use("/api/my/user", MyUserRoutes);
 app.use("/api/admin", MyAdminRoutes);
-app.use("api/class", ClassRoutes);
+app.use("/api/class", ClassRoutes);
 // app.use("api/enrollment");
 
 // route to check server is working
@@ -41,19 +44,19 @@ app.get("/health", (req: Request, res: Response) => {
   res.send({ message: "Health is Ok" });
 });
 
-if (cluster.isPrimary) {
-  console.log(`Master process ${process.pid} is running`);
-  for (let i = 0; i < numCpus; i++) {
-    cluster.fork();
-  }
-  console.log(`woker process ${process.pid}`);
+// if (cluster.isPrimary) {
+//   console.log(`Master process ${process.pid} is running`);
+//   for (let i = 0; i < numCpus; i++) {
+//     cluster.fork();
+//   }
+//   console.log(`woker process ${process.pid}`);
 
-  cluster.on("exit", function (worker) {
-    console.log(`Worker process ${worker.process.pid} died. Restarting...`);
-    cluster.fork();
-  });
-} else {
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
+//   cluster.on("exit", function (worker) {
+//     console.log(`Worker process ${worker.process.pid} died. Restarting...`);
+//     cluster.fork();
+//   });
+// } else {
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+// }
