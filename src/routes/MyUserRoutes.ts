@@ -9,7 +9,7 @@ const router = express.Router();
 router.post("/register", controller.registerUser);
 
 // User login
-router.get("/login", controller.loginUser);
+router.post("/login", controller.loginUser);
 
 // Endpoint to generate and send OTP to email
 router.post("/generate-otp", otpLimiter, controller.generateOTP);

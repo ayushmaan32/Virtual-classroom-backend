@@ -8,6 +8,8 @@ import cors from "cors";
 import cluster from "cluster";
 import http from "http";
 import os from "os";
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "../swagger-output.json";
 
 const numCpus = os.cpus().length;
 
@@ -32,6 +34,15 @@ mongoose
 // Store OTPs in a simple in-memory object
 export const otpStore: Record<string, string> = {};
 
+var options = {
+  explorer: true,
+};
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, options)
+);
 // Routes
 // app.use("/api/classes", classRoutes);
 app.use("/api/my/user", MyUserRoutes);
