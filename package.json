@@ -7,7 +7,7 @@
     "dev": "nodemon",
     "build": "npm install && npx tsc",
     "start": "node dist/index.js",
-    "swagger": "ts-node ./swagger.ts"
+    "swagger": "ts-node ./src/swagger.ts"
   },
   "keywords": [
     "classroom",
