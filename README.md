@@ -45,6 +45,14 @@ A comprehensive web application for managing virtual classrooms, designed for ad
 - **Database**: MongoDB
 - **Containerization**: Docker
 
+## Documention of API
+
+- Run the project and access the documentation at:
+
+```bash
+  http://localhost:5000/api-docs/
+```
+
 ## Project Setup
 
 ### Backend Setup
@@ -55,3 +63,7 @@ A comprehensive web application for managing virtual classrooms, designed for ad
    git clone https://github.com/ayushmaan32/Virtual-classroom-backend
    cd virtual-classroom
    ```
+
+```
+
+```
